@@ -7,7 +7,7 @@ METADATA_CSV_PATH = Path("data", "case_metadata.csv")
 NETWORK_CACHE_PATH = Path("data", "network_cache.pik")
 
 
-def load_network(metadata_csv: Path, edge_csv: Path) -> nx.Graph:
+def load_network(metadata_csv: Path = METADATA_CSV_PATH, edge_csv: Path = EDGE_CSV_PATH) -> nx.Graph:
     # We can get a performance bump on subsequent runs by storing the graph as a pickle
     if NETWORK_CACHE_PATH.exists():
         return nx.read_gpickle(NETWORK_CACHE_PATH)
@@ -37,5 +37,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    G = load_network(METADATA_CSV_PATH, EDGE_CSV_PATH)
+    G = load_network()
