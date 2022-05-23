@@ -9,14 +9,14 @@ NETWORK_CACHE_PATH = Path("data", "network_cache.pik")
 
 def load_network(
     metadata_csv: Path = METADATA_CSV_PATH, edge_csv: Path = EDGE_CSV_PATH
-) -> nx.Graph:
+) -> nx.DiGraph:
     # We can get a performance bump on subsequent runs by storing the graph as a pickle
     if NETWORK_CACHE_PATH.exists():
         return nx.read_gpickle(NETWORK_CACHE_PATH)
     g = nx.read_edgelist(
         edge_csv,
         delimiter=",",
-        create_using=nx.Graph(),
+        create_using=nx.DiGraph(),
     )
     with open(metadata_csv, "r") as f:
         reader = csv.reader(f)
@@ -29,14 +29,8 @@ def load_network(
 
 
 def main():
-    path_to_networks = ".\\data\\networks\\"
-    g = nx.read_edgelist(
-        path_to_networks + "facebook_combined.txt",
-        delimiter=" ",
-        create_using=nx.Graph(),
-    )
-    print(nx.info(g))
+    G = load_network()
 
 
 if __name__ == "__main__":
-    G = load_network()
+    main()
