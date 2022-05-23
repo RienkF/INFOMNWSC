@@ -8,15 +8,18 @@ NETWORK_CACHE_PATH = Path("data", "network_cache.pik")
 
 
 def load_network(
-    metadata_csv: Path = METADATA_CSV_PATH, edge_csv: Path = EDGE_CSV_PATH
-) -> nx.DiGraph:
+    directed=True,
+    metadata_csv: Path = METADATA_CSV_PATH,
+    edge_csv: Path = EDGE_CSV_PATH,
+) -> nx.Graph:
     # We can get a performance bump on subsequent runs by storing the graph as a pickle
     if NETWORK_CACHE_PATH.exists():
         return nx.read_gpickle(NETWORK_CACHE_PATH)
+    base_graph = nx.DiGraph() if directed else nx.Graph()
     g = nx.read_edgelist(
         edge_csv,
         delimiter=",",
-        create_using=nx.DiGraph(),
+        create_using=base_graph,
     )
     with open(metadata_csv, "r") as f:
         reader = csv.reader(f)
