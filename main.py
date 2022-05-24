@@ -2,6 +2,8 @@ import networkx as nx
 import csv
 from pathlib import Path
 
+from algorithm.edge_ratio import global_edge_ratio
+
 EDGE_CSV_PATH = Path("data", "citations.csv")
 METADATA_CSV_PATH = Path("data", "case_metadata.csv")
 NETWORK_CACHE_PATH = Path("data", "network_cache.pik")
@@ -33,6 +35,12 @@ def load_network(
 
 def main():
     G = load_network()
+
+    # communities = louvain_communities(
+    #     G,
+    #     global_edge_ratio,
+    #     local_edge_ratio
+    # )
 
 
 if __name__ == "__main__":

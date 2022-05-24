@@ -66,9 +66,7 @@ def louvain_partitions(
     improvement = True
     while improvement:
         yield partition
-        new_mod = global_community_measure(
-            graph, inner_partition, resolution=resolution
-        )
+        new_mod = global_community_measure(graph, partition, resolution=resolution)
         if new_mod - mod <= threshold:
             return
         mod = new_mod
@@ -78,7 +76,13 @@ def louvain_partitions(
         )
 
 
-def _one_level(G, m: int, partition: list[set[int]], local_community_measure: Callable, resolution=1):
+def _one_level(
+    G,
+    m: int,
+    partition: list[set[int]],
+    local_community_measure: Callable,
+    resolution=1,
+):
     """Calculate one level of the Louvain partitions tree
 
     Parameters
@@ -112,7 +116,7 @@ def _one_level(G, m: int, partition: list[set[int]], local_community_measure: Ca
             # TODO - Compute for each neighbour, the increase in score.
             # We pass the node_to_community dict, as well as the current node, and its neighbours
             for neighbour in G.neighbours(u):
-                new_score = local_community_measure(u, node_to_community, G)
+                new_score = local_community_measure(G, u, neighbour, node_to_community)
                 if new_score > best_community_score:
                     best_community_score = new_score
                     best_com = node_to_community[neighbour]
