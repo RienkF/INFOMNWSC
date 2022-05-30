@@ -52,7 +52,7 @@ def louvain_partitions(
     partition = [{u} for u in G.nodes()]
 
     # Get initial community score
-    mod = global_community_measure(G, partition, resolution=resolution)
+    mod = global_community_measure(G, partition)
 
     graph = G.__class__()
     graph.add_nodes_from(G)
@@ -66,7 +66,7 @@ def louvain_partitions(
     improvement = True
     while improvement:
         yield partition
-        new_mod = global_community_measure(graph, partition, resolution=resolution)
+        new_mod = global_community_measure(graph, partition)
         if new_mod - mod <= threshold:
             return
         mod = new_mod
@@ -116,7 +116,9 @@ def _one_level(
             # TODO - Compute for each neighbour, the increase in score.
             # We pass the node_to_community dict, as well as the current node, and its neighbours
             for neighbour in G.neighbours(u):
-                new_score = local_community_measure(G, u, neighbour, node_to_community)
+                new_score = local_community_measure(
+                    G, u, neighbour, node_to_community, inner_partition, partition
+                )
                 if new_score > best_community_score:
                     best_community_score = new_score
                     best_com = node_to_community[neighbour]
