@@ -70,8 +70,8 @@ def louvain_partitions(
         print("Executing iteration {}".format(counter))
         counter += 1
         yield partition
-        new_community_score = global_community_measure(graph, partition)
-        print(f"Calculated modularity: {new_community_score}")
+        new_community_score = global_community_measure(G, partition)
+        print(f"Calculated global measure score: {new_community_score}")
         if new_community_score - comm_score <= threshold:
             return
         comm_score = new_community_score
@@ -119,11 +119,16 @@ def _one_level(
             best_community_score = 0
             best_com = node_to_community[u]
 
-            # TODO - Compute for each neighbour, the increase in score.
             # We pass the node_to_community dict, as well as the current node, and its neighbours
             for neighbour in G.neighbors(u):
                 new_score = local_community_measure(
-                    G, u, neighbour, node_to_community, inner_partition, partition, original_graph
+                    G,
+                    u,
+                    neighbour,
+                    node_to_community,
+                    inner_partition,
+                    partition,
+                    original_graph,
                 )
                 if new_score > best_community_score:
                     best_community_score = new_score
