@@ -52,27 +52,32 @@ def louvain_partitions(
     partition = [{u} for u in G.nodes()]
 
     # Get initial community score
-    mod = global_community_measure(G, partition)
+    comm_score = global_community_measure(G, partition)
 
     graph = G.__class__()
     graph.add_nodes_from(G)
-    graph.add_weighted_edges_from(G.edges())
+    graph.add_weighted_edges_from(G.edges(data=True))
+    print(f"Created graph copy")
 
     m = graph.size()
     # Don't look at improvement on the first iteration
     partition, inner_partition, _ = _one_level(
-        graph, m, partition, local_community_measure, resolution
+        graph, m, partition, local_community_measure, G, resolution
     )
     improvement = True
+    counter = 0
     while improvement:
+        print("Executing iteration {}".format(counter))
+        counter += 1
         yield partition
-        new_mod = global_community_measure(graph, partition)
-        if new_mod - mod <= threshold:
+        new_community_score = global_community_measure(graph, partition)
+        print(f"Calculated modularity: {new_community_score}")
+        if new_community_score - comm_score <= threshold:
             return
-        mod = new_mod
+        comm_score = new_community_score
         graph = _gen_graph(graph, inner_partition)
         partition, inner_partition, improvement = _one_level(
-            graph, m, partition, local_community_measure, resolution
+            graph, m, partition, local_community_measure, G, resolution
         )
 
 
@@ -81,6 +86,7 @@ def _one_level(
     m: int,
     partition: list[set[int]],
     local_community_measure: Callable,
+    original_graph: nx.DiGraph,
     resolution=1,
 ):
     """Calculate one level of the Louvain partitions tree
@@ -115,9 +121,9 @@ def _one_level(
 
             # TODO - Compute for each neighbour, the increase in score.
             # We pass the node_to_community dict, as well as the current node, and its neighbours
-            for neighbour in G.neighbours(u):
+            for neighbour in G.neighbors(u):
                 new_score = local_community_measure(
-                    G, u, neighbour, node_to_community, inner_partition, partition
+                    G, u, neighbour, node_to_community, inner_partition, partition, original_graph
                 )
                 if new_score > best_community_score:
                     best_community_score = new_score

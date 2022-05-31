@@ -35,7 +35,15 @@ def load_network(
 
 
 def main():
-    G = load_network()
+    # G = load_network()
+    # Barabasi-Albert graph
+    G = nx.barabasi_albert_graph(500, 5)
+    # Add edge weight of 1 to each edge
+    for u, v, d in G.edges(data=True):
+        d["weight"] = 1
+    G = nx.to_directed(G)
+    print(f"Loaded {len(G.nodes)} nodes and {len(G.edges)} edges")
+
 
     communities = louvain_communities(G, global_edge_ratio, local_edge_ratio)
     print(len(communities))
