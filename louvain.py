@@ -56,7 +56,7 @@ def louvain_partitions(
 
     graph = G.__class__()
     graph.add_nodes_from(G)
-    graph.add_weighted_edges_from(G.edges(data=True))
+    graph.add_weighted_edges_from(G.edges(data="weight"))
     print(f"Created graph copy")
 
     m = graph.size()
@@ -72,6 +72,7 @@ def louvain_partitions(
         yield partition
         new_community_score = global_community_measure(G, partition)
         print(f"Calculated global measure score: {new_community_score}")
+        print(len(partition))
         if new_community_score - comm_score <= threshold:
             return
         comm_score = new_community_score
@@ -121,6 +122,8 @@ def _one_level(
 
             # We pass the node_to_community dict, as well as the current node, and its neighbours
             for neighbour in G.neighbors(u):
+                if node_to_community[u] == node_to_community[neighbour]:
+                    continue
                 new_score = local_community_measure(
                     G,
                     u,
@@ -129,6 +132,7 @@ def _one_level(
                     inner_partition,
                     partition,
                     original_graph,
+                    m,
                 )
                 if new_score > best_community_score:
                     best_community_score = new_score

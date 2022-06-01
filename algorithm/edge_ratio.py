@@ -1,15 +1,14 @@
 import networkx
 
-from networkx import subgraph_view, edge_boundary
 from itertools import chain
 
 
 # TODO: Type partition
 def global_edge_ratio(G: networkx.DiGraph, partitions):
-    return sum(map(lambda partition: edge_boundary_ratio(G, partition), partitions))
+    return sum(map(lambda partition: edge_boundary_ratio_2(G, partition), partitions))
 
 
-def local_edge_ratio(
+def local_edge_ratio_2(
     G: networkx.DiGraph,
     u,
     neighbour,
@@ -17,6 +16,7 @@ def local_edge_ratio(
     inner_partition,
     partition,
     original_graph: networkx.DiGraph,
+    m: int,
 ):
     """
     Calculates the change in score if u is moved to the community of the given neighbour.
@@ -26,22 +26,31 @@ def local_edge_ratio(
     :param node_to_community: Dictionary that maps nodes to communities.
     :param inner_partition: Partition in the current stage of louvain.
     :param partition: Total partition of the complete graph.
+    :param original_graph: The original graph used at the start of the algorithm.
+    :param m: Total amount of edges.
     :return: Change in local score
     """
-    nodes_in_u = G.nodes[u].get("nodes", {u})
+    u_partition = inner_partition[node_to_community[u]]
+    old_score_u = edge_boundary_ratio_2(G, u_partition)
 
-    old_score_u = edge_boundary_ratio(original_graph, nodes_in_u)
+    neighbour_partition = inner_partition[node_to_community[neighbour]]
+    old_score_neighbour = edge_boundary_ratio_2(G, neighbour_partition)
 
-    nodes_in_neighbour = G.nodes[neighbour].get("nodes", {neighbour})
-    old_score_neighbour = edge_boundary_ratio(original_graph, nodes_in_neighbour)
+    neighbour_partition_with_u = [u, *neighbour_partition]
+    new_score_u_and_neighbour = edge_boundary_ratio_2(G, neighbour_partition_with_u)
 
-    nodes_in_u_and_neighbour = [*nodes_in_u, *nodes_in_neighbour]
-    new_score = edge_boundary_ratio(original_graph, nodes_in_u_and_neighbour)
+    u_partition_without_u = u_partition - {u}
+    new_score_u_partition_without_u = edge_boundary_ratio_2(G, u_partition_without_u)
 
-    return new_score - old_score_u - old_score_neighbour
+    return (
+        new_score_u_and_neighbour
+        + new_score_u_partition_without_u
+        - old_score_u
+        - old_score_neighbour
+    )
 
 
-def edge_boundary_ratio(G: networkx.DiGraph, partition):
+def edge_boundary_ratio_2(G: networkx.DiGraph, partition):
     """
     Calculates the the edge boundary ratio efficiently by checking each edge
     """
@@ -49,13 +58,17 @@ def edge_boundary_ratio(G: networkx.DiGraph, partition):
     in_edge_size = 0
     partition = set(partition)
     for node in partition:
-        for neighbour in chain(G.predecessors(node), G.successors(node)):
-            if neighbour not in partition:
-                edge_boundary_size += 1
+        for edge in G.out_edges(node, "weight"):
+            if edge[1] not in partition:
+                edge_boundary_size += edge[2]
             else:
-                in_edge_size += 1
+                in_edge_size += edge[2]
+        for edge in G.in_edges(node, "weight"):
+            if edge[0] not in partition:
+                edge_boundary_size += edge[2]
+            else:
+                in_edge_size += edge[2]
     in_edge_size = in_edge_size / 2
-    denom = edge_boundary_size + in_edge_size
-    if denom == 0:
+    if in_edge_size == 0:
         return 0
-    return in_edge_size / denom
+    return in_edge_size / (edge_boundary_size + in_edge_size)

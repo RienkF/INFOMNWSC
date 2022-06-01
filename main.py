@@ -2,7 +2,7 @@ import networkx as nx
 import csv
 from pathlib import Path
 
-from algorithm.edge_ratio import global_edge_ratio, local_edge_ratio
+from algorithm.edge_ratio import global_edge_ratio, local_edge_ratio_2
 from louvain import louvain_communities
 
 EDGE_CSV_PATH = Path("data", "citations.csv")
@@ -37,14 +37,14 @@ def load_network(
 def main():
     # G = load_network()
     # Barabasi-Albert graph
-    G = nx.barabasi_albert_graph(5000, 5)
+    G = nx.barabasi_albert_graph(1000, 2)
     # Add edge weight of 1 to each edge
     for u, v, d in G.edges(data=True):
         d["weight"] = 1
     G = nx.to_directed(G)
     print(f"Loaded {len(G.nodes)} nodes and {len(G.edges)} edges")
 
-    communities = louvain_communities(G, global_edge_ratio, local_edge_ratio)
+    communities = louvain_communities(G, global_edge_ratio, local_edge_ratio_2)
     print(len(communities))
 
 
