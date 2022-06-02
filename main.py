@@ -37,7 +37,7 @@ def load_network(
 def main():
     # G = load_network()
     # Barabasi-Albert graph
-    G = nx.barabasi_albert_graph(1000, 2)
+    G = nx.barabasi_albert_graph(1000, 10)
     # Add edge weight of 1 to each edge
     for u, v, d in G.edges(data=True):
         d["weight"] = 1

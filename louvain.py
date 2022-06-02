@@ -4,6 +4,8 @@ from typing import Callable
 
 import networkx as nx
 
+from algorithm.edge_ratio import global_edge_ratio
+
 
 def louvain_communities(
     G: nx.DiGraph,
@@ -72,7 +74,6 @@ def louvain_partitions(
         yield partition
         new_community_score = global_community_measure(G, partition)
         print(f"Calculated global measure score: {new_community_score}")
-        print(len(partition))
         if new_community_score - comm_score <= threshold:
             return
         comm_score = new_community_score
@@ -117,7 +118,7 @@ def _one_level(
     while nb_moves > 0:
         nb_moves = 0
         for u in rand_nodes:
-            best_community_score = 0
+            best_community_score = 0.0000000000001
             best_com = node_to_community[u]
 
             # We pass the node_to_community dict, as well as the current node, and its neighbours
