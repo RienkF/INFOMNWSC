@@ -5,10 +5,10 @@ from itertools import chain
 
 # TODO: Type partition
 def global_edge_ratio(G: networkx.DiGraph, partitions):
-    return sum(map(lambda partition: edge_boundary_ratio_2(G, partition), partitions))
+    return sum(map(lambda partition: edge_boundary_ratio(G, partition), partitions))
 
 
-def local_edge_ratio_2(
+def local_edge_ratio(
     G: networkx.DiGraph,
     u,
     neighbour,
@@ -31,16 +31,16 @@ def local_edge_ratio_2(
     :return: Change in local score
     """
     u_partition = inner_partition[node_to_community[u]]
-    old_score_u = edge_boundary_ratio_2(G, u_partition)
+    old_score_u = edge_boundary_ratio(G, u_partition)
 
     neighbour_partition = inner_partition[node_to_community[neighbour]]
-    old_score_neighbour = edge_boundary_ratio_2(G, neighbour_partition)
+    old_score_neighbour = edge_boundary_ratio(G, neighbour_partition)
 
     neighbour_partition_with_u = [u, *neighbour_partition]
-    new_score_u_and_neighbour = edge_boundary_ratio_2(G, neighbour_partition_with_u)
+    new_score_u_and_neighbour = edge_boundary_ratio(G, neighbour_partition_with_u)
 
     u_partition_without_u = u_partition - {u}
-    new_score_u_partition_without_u = edge_boundary_ratio_2(G, u_partition_without_u)
+    new_score_u_partition_without_u = edge_boundary_ratio(G, u_partition_without_u)
 
     return (
         new_score_u_and_neighbour
@@ -50,7 +50,7 @@ def local_edge_ratio_2(
     )
 
 
-def edge_boundary_ratio_2(G: networkx.DiGraph, partition):
+def edge_boundary_ratio(G: networkx.DiGraph, partition):
     """
     Calculates the the edge boundary ratio efficiently by checking each edge
     """

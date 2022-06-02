@@ -2,7 +2,7 @@ import networkx as nx
 import csv
 from pathlib import Path
 
-from algorithm.edge_ratio import global_edge_ratio, local_edge_ratio_2
+from algorithm.edge_ratio import global_edge_ratio, local_edge_ratio
 from louvain import louvain_communities
 
 EDGE_CSV_PATH = Path("data", "citations.csv")
@@ -44,7 +44,7 @@ def main():
     G = nx.to_directed(G)
     print(f"Loaded {len(G.nodes)} nodes and {len(G.edges)} edges")
 
-    communities = louvain_communities(G, global_edge_ratio, local_edge_ratio_2)
+    communities = louvain_communities(G, global_edge_ratio, local_edge_ratio)
     print(len(communities))
 
 

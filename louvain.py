@@ -164,9 +164,9 @@ def _gen_graph(G, partition):
             nodes.update(G.nodes[node].get("nodes", {node}))
         H.add_node(i, nodes=nodes)
 
-    for node1, node2, _ in G.edges(data=True):
+    for node1, node2, weight in G.edges(data="weight"):
         com1 = node_community_map[node1]
         com2 = node_community_map[node2]
         temp = H.get_edge_data(com1, com2, {"weight": 0})["weight"]
-        H.add_edge(com1, com2, **{"weight": 1 + temp})
+        H.add_edge(com1, com2, **{"weight": weight + temp})
     return H
