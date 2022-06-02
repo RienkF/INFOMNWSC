@@ -34,21 +34,75 @@ def local_modularity(
     :return: Change in local score
     """
 
-    k_i_in = len(filter(lambda n: n in  G.successors(u)
+    in_degree_u = sum(map(lambda x: x[2], G.in_edges(u, "weight")))
+    out_degree_u = sum(map(lambda x: x[2], G.out_edges(u, "weight")))
 
-    in_degree = len(original_graph.predecessors(u))
-    out_degree = len(original_graph.successors(u))
-    Stot_in = [deg for deg in in_degrees.values()]
-    Stot_out = [deg for deg in out_degrees.values()]
+    # removing u from the current partition
+    u_partition = inner_partition[node_to_community[u]]
 
-    in_degree = in_degrees[u]
-    out_degree = out_degrees[u]
-    Stot_in[best_com] -= in_degree
-    Stot_out[best_com] -= out_degree
+    remove_loss_out = sum(
+        map(
+            lambda edge: (
+                edge[2]
+                - (
+                    (
+                        in_degree_u
+                        * sum(map(lambda x: x[2], G.out_edges(edge[1], "weight")))
+                    )
+                    / m
+                )
+            ),
+            filter(lambda n: n[1] in u_partition, G.out_edges(u, "weight")),
+        ),
+    )
+    remove_loss_in = sum(
+        map(
+            lambda edge: (
+                edge[2]
+                - (
+                    (
+                        sum(map(lambda x: x[2], G.in_edges(edge[0], "weight")))
+                        * out_degree_u
+                    )
+                    / m
+                )
+            ),
+            filter(lambda n: n[0] in u_partition, G.in_edges(u, "weight")),
+        ),
+    )
 
-    gain = wt - (out_degree * Stot_in[nbr_com] + in_degree * Stot_out[nbr_com]) / m
+    # adding it to the neighbouring partition
+    neighbour_partition = inner_partition[node_to_community[neighbour]]
+    add_gain_out = sum(
+        map(
+            lambda edge: (
+                edge[2]
+                - (
+                    (
+                        in_degree_u
+                        * sum(map(lambda x: x[2], G.out_edges(edge[1], "weight")))
+                    )
+                    / m
+                )
+            ),
+            filter(lambda n: n[1] in neighbour_partition, G.out_edges(u, "weight")),
+        ),
+    )
 
-    Stot_in[best_com] += in_degree
-    Stot_out[best_com] += out_degree
+    add_gain_in = sum(
+        map(
+            lambda edge: (
+                edge[2]
+                - (
+                    (
+                        sum(map(lambda x: x[2], G.in_edges(edge[0], "weight")))
+                        * out_degree_u
+                    )
+                    / m
+                )
+            ),
+            filter(lambda n: n[0] in neighbour_partition, G.in_edges(u, "weight")),
+        ),
+    )
 
-    return gain
+    return add_gain_in + add_gain_out - remove_loss_in - remove_loss_out

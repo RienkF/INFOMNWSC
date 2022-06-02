@@ -5,6 +5,7 @@ from typing import Callable
 import networkx as nx
 
 from algorithm.edge_ratio import global_edge_ratio
+from algorithm.modularity import global_modularity
 
 
 def louvain_communities(
@@ -149,6 +150,7 @@ def _one_level(
                 improvement = True
                 nb_moves += 1
                 node_to_community[u] = best_com
+                print(global_modularity(original_graph, partition))
     partition = list(filter(len, partition))
     inner_partition = list(filter(len, inner_partition))
     return partition, inner_partition, improvement
