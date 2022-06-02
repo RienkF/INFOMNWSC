@@ -17,6 +17,11 @@ def main():
         # Ignore nodes without a ground truth community label
         if court is not None:
             nodes_by_community[court].add(node)
+    create_edge_prob_csv(G, nodes_by_community)
+    create_community_size_csv(nodes_by_community)
+
+
+def create_edge_prob_csv(G, nodes_by_community):
     # Count number of edges between each pair of communities
     edges_by_community_pair = defaultdict(int)
     for u, v in G.edges:
@@ -27,12 +32,25 @@ def main():
     # Normalize edge probabilities out of number of possible edges between each pair of communities
     edge_probabilities = {}
     for (u_court, v_court), count in edges_by_community_pair.items():
-        edge_probabilities[(u_court, v_court)] = count / (len(nodes_by_community[u_court]) * len(nodes_by_community[v_court]))
+        denom = len(nodes_by_community[u_court]) * len(nodes_by_community[v_court])
+        if u_court == v_court:
+            # Within the same community, # of possible edges is n(n-1)
+            denom -= len(nodes_by_community[u_court])
+        edge_probabilities[(u_court, v_court)] = count / denom
     # Write edge probabilities to file
     with open(Path("data", "edge_probabilities.csv"), "w") as f:
         writer = csv.writer(f)
         for (u_court, v_court), probability in edge_probabilities.items():
             writer.writerow([u_court, v_court, probability])
+
+
+def create_community_size_csv(nodes_by_community: dict[set]):
+    # Relative size of each community
+    total_nodes = sum(len(nodes) for nodes in nodes_by_community.values())
+    with open(Path("data", "community_sizes.csv"), "w") as f:
+        writer = csv.writer(f)
+        for community, nodes in nodes_by_community.items():
+            writer.writerow([community, len(nodes) / total_nodes])
 
 
 if __name__ == "__main__":
