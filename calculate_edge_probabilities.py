@@ -4,6 +4,7 @@ from collections import defaultdict
 import networkx as nx
 import csv
 from pathlib import Path
+import powerlaw
 
 from main import load_network
 
@@ -11,14 +12,15 @@ from main import load_network
 def main():
     G = load_network()
     # "court" field contains ground truth community labels
-    nodes_by_community = defaultdict(set)
-    for node in G.nodes:
-        court = G.nodes[node].get("court", None)
-        # Ignore nodes without a ground truth community label
-        if court is not None:
-            nodes_by_community[court].add(node)
-    create_edge_prob_csv(G, nodes_by_community)
-    create_community_size_csv(nodes_by_community)
+    # nodes_by_community = defaultdict(set)
+    # for node in G.nodes:
+    #     court = G.nodes[node].get("court", None)
+    #     # Ignore nodes without a ground truth community label
+    #     if court is not None:
+    #         nodes_by_community[court].add(node)
+    # create_edge_prob_csv(G, nodes_by_community)
+    # create_community_size_csv(nodes_by_community)
+    print(estimate_power_law_degree_exponent(G))
 
 
 def create_edge_prob_csv(G, nodes_by_community):
@@ -51,6 +53,21 @@ def create_community_size_csv(nodes_by_community: dict[set]):
         writer = csv.writer(f)
         for community, nodes in nodes_by_community.items():
             writer.writerow([community, len(nodes) / total_nodes])
+
+
+def estimate_power_law_degree_exponent(G):
+    degrees = [d for n, d in G.degree()]
+    fit = powerlaw.Fit(degrees)
+    # Now do a powerlaw fit for the community sizes
+    nodes_by_community = defaultdict(set)
+    for node in G.nodes:
+        court = G.nodes[node].get("court", None)
+        if court is not None:
+            nodes_by_community[court].add(node)
+    community_sizes = [len(nodes) for nodes in nodes_by_community.values()]
+    print(community_sizes)
+    fit2 = powerlaw.Fit(community_sizes)
+    return fit.power_law.alpha, fit2.power_law.alpha
 
 
 if __name__ == "__main__":

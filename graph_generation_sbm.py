@@ -51,13 +51,15 @@ def generate_sbm_graph(
         edge_prob_mat = EDGE_PROBS
     if community_sizes is None:
         community_sizes = COMMUNITY_SIZES
+    # Scale edge probabilities by 100,000 / n
+    edge_prob_mat = [[p * 50000 / n for p in row] for row in edge_prob_mat]
     community_sizes = [int(round(n * s)) for s in community_sizes]
     G = nx.stochastic_block_model(
         community_sizes, edge_prob_mat, seed=seed, directed=True
     )
     # Add weight=1 to each edge
-    for u, v in G.edges:
-        G[u][v]["weight"] = 1
+    # for u, v in G.edges:
+    #     G[u][v]["weight"] = 1
     return G
 
 

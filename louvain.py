@@ -75,7 +75,7 @@ def louvain_partitions(
         yield partition
         new_community_score = global_community_measure(G, partition)
         # print(f"Calculated global measure score: {new_community_score}")
-        if new_community_score - comm_score <= threshold:
+        if abs(new_community_score - comm_score) <= threshold:
             return
         comm_score = new_community_score
         graph = _gen_graph(graph, inner_partition)
