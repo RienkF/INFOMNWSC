@@ -37,7 +37,7 @@ def get_community_sizes(community_size_csv: Path) -> list[float]:
     return community_sizes
 
 
-EDGE_PROBS = get_edge_probabilities(Path("data", "edge_prbabilities.csv"))
+EDGE_PROBS = get_edge_probabilities(Path("data", "edge_probabilities.csv"))
 COMMUNITY_SIZES = get_community_sizes(Path("data", "community_sizes.csv"))
 
 

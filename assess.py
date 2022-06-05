@@ -1,5 +1,6 @@
 # Normalized mutual information score for community detection
 import csv
+from pathlib import Path
 
 import networkx as nx
 from sklearn.metrics import normalized_mutual_info_score
@@ -8,7 +9,10 @@ from algorithm.edge_ratio import local_edge_ratio, global_edge_ratio
 from graph_generation import generate_sbm_graph
 from louvain import louvain_communities
 
-Parttion = list[set[str]]
+
+Partition = list[set[str]]
+
+GRAPH_SIZE = 500
 
 RANDOM_GRAPH_SEEDS = (
     2022_0,
@@ -38,15 +42,27 @@ COMMUNITY_MEASURES = {
     },
 }
 
+Labels = list[int]
 
-def nmi_score(labels_true: Parttion, labels_pred: Parttion) -> float:
-    return normalized_mutual_info_score(labels_true, labels_pred)
+
+def nmi_format_partition(partition: Partition) -> Labels:
+    node_comm_dict = {
+        node: comm for comm, nodes in enumerate(partition) for node in nodes
+    }
+    return [node_comm_dict[node] for node in sorted(list(node_comm_dict.keys()))]
+
+
+def nmi_score(labels_true: Partition, labels_pred: Partition) -> float:
+    partition = nmi_format_partition(labels_true)
+    format_partition = nmi_format_partition(labels_pred)
+    return normalized_mutual_info_score(partition, format_partition)
 
 
 def run_benchmarks(
     graph_seeds=RANDOM_GRAPH_SEEDS,
     measures=tuple(COMMUNITY_MEASURES.keys()),
-    graph_size=5000,
+    graph_size=GRAPH_SIZE,
+    output_file=Path("data", "benchmark_results.csv"),
 ):
     """
     Testing procedure: for each SBM graph (created from seed), run the louvain algorithm with each measure.
@@ -71,6 +87,7 @@ def run_benchmarks(
         nmi_results[measure]["variance_nmi"] = sum(
             [(x - nmi_results[measure]["mean_nmi"]) ** 2 for x in nmi_scores]
         ) / len(nmi_scores)
+    save_benchmark_results(nmi_results, output_file)
 
 
 def save_benchmark_results(nmi_results, output_file):
@@ -79,3 +96,11 @@ def save_benchmark_results(nmi_results, output_file):
         writer.writerow(["Measure", "Mean NMI", "Variance NMI"])
         for measure, results in nmi_results.items():
             writer.writerow([measure, results["mean_nmi"], results["variance_nmi"]])
+
+
+def main():
+    run_benchmarks()
+
+
+if __name__ == "__main__":
+    main()
