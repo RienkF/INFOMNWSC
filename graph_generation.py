@@ -8,19 +8,6 @@ from pathlib import Path
 from algorithm.edge_ratio import global_edge_ratio
 
 
-def get_sbm_graph(
-    n: int, community_sizes: list[float], edge_prob_mat: list[list[float]], seed=None
-) -> nx.DiGraph:
-    community_sizes = [int(round(n * s)) for s in community_sizes]
-    G = nx.stochastic_block_model(
-        community_sizes, edge_prob_mat, seed=seed, directed=True
-    )
-    # Add weight=1 to each edge
-    for u, v in G.edges:
-        G[u][v]["weight"] = 1
-    return G
-
-
 def get_edge_probabilities(edge_prob_csv: Path) -> list[list[float]]:
     # Outer key: citing community, inner key: cited community, value: probability of edges
     edge_prob_dict: dict[str, dict[str, float]] = defaultdict(
@@ -50,16 +37,32 @@ def get_community_sizes(community_size_csv: Path) -> list[float]:
     return community_sizes
 
 
-def main():
-    edge_prob_mat = get_edge_probabilities(Path("data", "edge_probabilities.csv"))
-    community_sizes = get_community_sizes(Path("data", "community_sizes.csv"))
-    # print(edge_prob_mat)
-    G = get_sbm_graph(
-        n=5000,
-        community_sizes=community_sizes,
-        edge_prob_mat=edge_prob_mat,
-        seed=2022_1,
+EDGE_PROBS = get_edge_probabilities(Path("data", "edge_prbabilities.csv"))
+COMMUNITY_SIZES = get_community_sizes(Path("data", "community_sizes.csv"))
+
+
+def generate_sbm_graph(
+    n: int,
+    community_sizes=None,
+    edge_prob_mat=None,
+    seed=None,
+) -> nx.DiGraph:
+    if edge_prob_mat is None:
+        edge_prob_mat = EDGE_PROBS
+    if community_sizes is None:
+        community_sizes = COMMUNITY_SIZES
+    community_sizes = [int(round(n * s)) for s in community_sizes]
+    G = nx.stochastic_block_model(
+        community_sizes, edge_prob_mat, seed=seed, directed=True
     )
+    # Add weight=1 to each edge
+    for u, v in G.edges:
+        G[u][v]["weight"] = 1
+    return G
+
+
+def main():
+    G = generate_sbm_graph(1000)
     print(f"Edge ratio: {global_edge_ratio(G, G.graph['partition'])}")
     print(f"Modularity: {nx.community.modularity(G, G.graph['partition'])}")
 
