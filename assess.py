@@ -10,6 +10,10 @@ from networkx.utils import py_random_state
 
 from algorithm.edge_ratio import local_edge_ratio, global_edge_ratio
 from algorithm.modularity import global_modularity, local_modularity
+from algorithm.modularity_density import (
+    local_modularity_density,
+    global_modularity_density,
+)
 from graph_generation_sbm import generate_sbm_graph
 
 # from louvain import louvain_communities
@@ -41,13 +45,21 @@ COMMUNITY_MEASURES = {
     #         local_edge_ratio,
     #     ),
     # },
-    "modularity": {
-        "name": "Modularity",
-        # "partition_func": lambda G: louvain_communities(G),
+    # "modularity": {
+    #     "name": "Modularity",
+    #     # "partition_func": lambda G: louvain_communities(G),
+    #     "partition_func": lambda G: louvain_communities(
+    #         G,
+    #         global_modularity,
+    #         local_modularity,
+    #     ),
+    # },
+    "modularity_density": {
+        "name": "Modularity Density",
         "partition_func": lambda G: louvain_communities(
             G,
-            global_modularity,
-            local_modularity,
+            global_modularity_density,
+            local_modularity_density,
         ),
     },
 }
