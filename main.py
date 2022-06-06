@@ -4,6 +4,7 @@ from pathlib import Path
 
 from algorithm.edge_ratio import global_edge_ratio, local_edge_ratio
 from algorithm.modularity import global_modularity, local_modularity
+from assess import run_benchmarks
 from louvain import louvain_communities
 
 EDGE_CSV_PATH = Path("data", "citations.csv")
@@ -36,18 +37,19 @@ def load_network(
 
 
 def main():
-    # G = load_network()
-    # Barabasi-Albert graph
-    G = nx.barabasi_albert_graph(20, 3)
-    # Add edge weight of 1 to each edge
-    for u, v, d in G.edges(data=True):
-        d["weight"] = 1
-    G = nx.to_directed(G)
-    print(f"Loaded {len(G.nodes)} nodes and {len(G.edges)} edges")
-
-    # communities = louvain_communities(G, global_edge_ratio, local_edge_ratio)
-    communities = louvain_communities(G, global_modularity, local_modularity)
-    print(len(communities))
+    # # G = load_network()
+    # # Barabasi-Albert graph
+    # G = nx.barabasi_albert_graph(20, 3)
+    # # Add edge weight of 1 to each edge
+    # for u, v, d in G.edges(data=True):
+    #     d["weight"] = 1
+    # G = nx.to_directed(G)
+    # print(f"Loaded {len(G.nodes)} nodes and {len(G.edges)} edges")
+    #
+    # # communities = louvain_communities(G, global_edge_ratio, local_edge_ratio)
+    # communities = louvain_communities(G, global_modularity, local_modularity)
+    # print(len(communities))
+    run_benchmarks()
 
 
 if __name__ == "__main__":

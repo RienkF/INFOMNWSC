@@ -54,13 +54,13 @@ def louvain_partitions(
     """
     partition = [{u} for u in G.nodes()]
 
-    # Get initial community score
-    comm_score = global_community_measure(G, partition)
-
     graph = G.__class__()
     graph.add_nodes_from(G)
     graph.add_weighted_edges_from(G.edges(data="weight"))
     # print(f"Created graph copy")
+
+    # Get initial community score
+    comm_score = global_community_measure(graph, partition)
 
     m = graph.size()
     # Don't look at improvement on the first iteration
@@ -150,7 +150,6 @@ def _one_level(
                 improvement = True
                 nb_moves += 1
                 node_to_community[u] = best_com
-                # print(global_modularity(original_graph, partition))
     partition = list(filter(len, partition))
     inner_partition = list(filter(len, inner_partition))
     return partition, inner_partition, improvement

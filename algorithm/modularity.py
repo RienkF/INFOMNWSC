@@ -8,7 +8,22 @@ from networkx.algorithms.community import modularity
 
 
 def global_modularity(G: networkx.DiGraph, partitions):
-    return modularity(G, partitions)
+    m = G.size()
+
+    score_sum = 0
+    for partition in partitions:
+        for u in partition:
+            u_in_degree = sum(map(lambda x: x[2], G.in_edges(u, "weight")))
+            for (
+                _,
+                n,
+                wt,
+            ) in G.out_edges(u, "weight"):
+                if n in partition:
+                    n_out_degree = sum(map(lambda x: x[2], G.out_edges(n, "weight")))
+                    score_sum += wt - ((u_in_degree * n_out_degree) / m)
+    return score_sum / m
+    # return modularity(G, partitions)
 
 
 def local_modularity(

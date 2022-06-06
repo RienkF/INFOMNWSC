@@ -58,8 +58,8 @@ def generate_sbm_graph(
         community_sizes, edge_prob_mat, seed=seed, directed=True
     )
     # Add weight=1 to each edge
-    # for u, v in G.edges:
-    #     G[u][v]["weight"] = 1
+    for u, v in G.edges:
+        G[u][v]["weight"] = 1
     return G
 
 

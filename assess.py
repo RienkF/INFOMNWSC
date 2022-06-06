@@ -2,13 +2,18 @@
 import csv
 from pathlib import Path
 
-import networkx as nx
 from sklearn.metrics import normalized_mutual_info_score
 
-from algorithm.edge_ratio import local_edge_ratio, global_edge_ratio
-from graph_generation_sbm import generate_sbm_graph
-from louvain import louvain_communities
+import networkx as nx
+from networkx.algorithms.community import modularity
+from networkx.utils import py_random_state
 
+from algorithm.edge_ratio import local_edge_ratio, global_edge_ratio
+from algorithm.modularity import global_modularity, local_modularity
+from graph_generation_sbm import generate_sbm_graph
+
+# from louvain import louvain_communities
+from louvain import louvain_communities
 
 Partition = list[set[str]]
 
@@ -38,7 +43,12 @@ COMMUNITY_MEASURES = {
     # },
     "modularity": {
         "name": "Modularity",
-        "partition_func": lambda G: nx.community.louvain_communities(G),
+        # "partition_func": lambda G: louvain_communities(G),
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_modularity,
+            local_modularity,
+        ),
     },
 }
 
@@ -76,8 +86,12 @@ def run_benchmarks(
             G = generate_sbm_graph(graph_size, seed=seed)
             partition = COMMUNITY_MEASURES[measure]["partition_func"](G)
             ground_truth_partition = G.graph["partition"]
-            print(f"Modularity for ground truth: {nx.algorithms.community.modularity(G, ground_truth_partition)}")
-            print(f"Modularity for algorithm: {nx.algorithms.community.modularity(G, partition)}")
+            print(
+                f"Modularity for ground truth: {nx.algorithms.community.modularity(G, ground_truth_partition)}"
+            )
+            print(
+                f"Modularity for algorithm: {nx.algorithms.community.modularity(G, partition)}"
+            )
             nmi_scores.append(nmi_score(ground_truth_partition, partition))
             print(
                 f"Measure {measure}, Seed {seed}: NMI"
