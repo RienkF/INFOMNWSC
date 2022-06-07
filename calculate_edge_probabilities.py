@@ -21,6 +21,7 @@ def main():
     # create_edge_prob_csv(G, nodes_by_community)
     # create_community_size_csv(nodes_by_community)
     print(estimate_power_law_degree_exponent(G))
+    print(f"Inter-community edge fraction: {inter_community_edge_fraction(G)}")
 
 
 def create_edge_prob_csv(G, nodes_by_community):
@@ -57,7 +58,7 @@ def create_community_size_csv(nodes_by_community: dict[set]):
 
 def estimate_power_law_degree_exponent(G):
     degrees = [d for n, d in G.degree()]
-    fit = powerlaw.Fit(degrees)
+    degree_distrib_fit = powerlaw.Fit(degrees)
     # Now do a powerlaw fit for the community sizes
     nodes_by_community = defaultdict(set)
     for node in G.nodes:
@@ -65,9 +66,26 @@ def estimate_power_law_degree_exponent(G):
         if court is not None:
             nodes_by_community[court].add(node)
     community_sizes = [len(nodes) for nodes in nodes_by_community.values()]
-    print(community_sizes)
-    fit2 = powerlaw.Fit(community_sizes)
-    return fit.power_law.alpha, fit2.power_law.alpha
+    community_size_fit = powerlaw.Fit(community_sizes)
+    return degree_distrib_fit.power_law.alpha, community_size_fit.power_law.alpha
+
+
+def inter_community_edge_fraction(G):
+    """
+    Calculates the fraction of edges that are between two separate communities
+    :param G: NetworkX graph
+    :return: fraction of edges that are between two separate communities
+    """
+    inter_community_edges = 0
+    total_edges = 0
+    for u, v in G.edges:
+        u_court = G.nodes[u].get("court", None)
+        v_court = G.nodes[v].get("court", None)
+        if u_court is not None and v_court is not None:
+            total_edges += 1
+            if u_court != v_court:
+                inter_community_edges += 1
+    return inter_community_edges / total_edges
 
 
 if __name__ == "__main__":
