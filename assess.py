@@ -5,11 +5,7 @@ from pathlib import Path
 from sklearn.metrics import normalized_mutual_info_score
 
 import networkx as nx
-from networkx.algorithms.community import modularity
-from networkx.utils import py_random_state
 
-from algorithm.edge_ratio import local_edge_ratio, global_edge_ratio
-from algorithm.modularity import global_modularity, local_modularity
 from algorithm.modularity_density import (
     local_modularity_density,
     global_modularity_density,
@@ -17,9 +13,8 @@ from algorithm.modularity_density import (
 from graph_generation_sbm import generate_sbm_graph
 
 # from louvain import louvain_communities
-from louvain import louvain_communities
-
-Partition = list[set[str]]
+from algorithm.louvain import louvain_communities
+from utils.types import Partition, Labels
 
 GRAPH_SIZE = 5000
 
@@ -63,8 +58,6 @@ COMMUNITY_MEASURES = {
         ),
     },
 }
-
-Labels = list[int]
 
 
 def nmi_format_partition(partition: Partition) -> Labels:

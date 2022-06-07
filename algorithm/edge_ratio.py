@@ -1,21 +1,26 @@
 import networkx
 
-from itertools import chain
+from utils.types import Partition
 
 
-# TODO: Type partition
-def global_edge_ratio(G: networkx.DiGraph, partitions):
+def global_edge_ratio(G: networkx.DiGraph, partitions: Partition, _: int):
+    """
+    Calculate the global edge ration score.
+    :param G: Total graph
+    :param partitions: Partitions on te graph
+    :param _: size of the graph.
+    :return: Edge ratio score
+    """
+    # Sum all partition scores.
     return sum(map(lambda partition: edge_boundary_ratio(G, partition), partitions))
 
 
 def local_edge_ratio(
     G: networkx.DiGraph,
-    u,
-    neighbour,
-    node_to_community,
-    inner_partition,
-    partition,
-    original_graph: networkx.DiGraph,
+    u: int,
+    neighbour: int,
+    node_to_community: dict,
+    inner_partition: Partition,
     m: int,
 ):
     """
@@ -25,17 +30,17 @@ def local_edge_ratio(
     :param neighbour: Neighbour partition to which the node will be moved.
     :param node_to_community: Dictionary that maps nodes to communities.
     :param inner_partition: Partition in the current stage of louvain.
-    :param partition: Total partition of the complete graph.
-    :param original_graph: The original graph used at the start of the algorithm.
     :param m: Total amount of edges.
     :return: Change in local score
     """
+    # Calculate the current scores
     u_partition = inner_partition[node_to_community[u]]
     old_score_u = edge_boundary_ratio(G, u_partition)
 
     neighbour_partition = inner_partition[node_to_community[neighbour]]
     old_score_neighbour = edge_boundary_ratio(G, neighbour_partition)
 
+    # Calculate the new score
     neighbour_partition_with_u = [u, *neighbour_partition]
     new_score_u_and_neighbour = edge_boundary_ratio(G, neighbour_partition_with_u)
 
@@ -53,6 +58,9 @@ def local_edge_ratio(
 def edge_boundary_ratio(G: networkx.DiGraph, partition):
     """
     Calculates the the edge boundary ratio efficiently by checking each edge
+    :param G: The graph
+    :param partition: The current partition
+    :return: Edge boundary ratio for the current partition
     """
     edge_boundary_size = 0
     in_edge_size = 0
