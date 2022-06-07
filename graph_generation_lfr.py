@@ -40,12 +40,12 @@ def generate_lfr_graph(
         tau1=deg_exponent,
         tau2=comm_exponent,
         average_degree=avg_deg,
-        # max_degree=max_deg,
         min_community=min_comm_size,
         max_community=max_comm_size,
         mu=inter_community_frac,
         seed=seed,
     )
+    G = G.to_directed()
     # Add weight=1 to each edge
     for u, v in G.edges():
         G[u][v]["weight"] = 1

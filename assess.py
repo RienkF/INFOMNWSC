@@ -6,11 +6,20 @@ from sklearn.metrics import normalized_mutual_info_score
 
 import networkx as nx
 
+from algorithm.edge_ratio import (
+    local_edge_ratio,
+    global_edge_ratio,
+)
+from algorithm.modularity import (
+    local_modularity,
+    global_modularity,
+)
 from algorithm.modularity_density import (
     local_modularity_density,
     global_modularity_density,
 )
 from graph_generation_sbm import generate_sbm_graph
+from graph_generation_lfr import generate_lfr_graph
 
 # from louvain import louvain_communities
 from algorithm.louvain import louvain_communities
@@ -32,23 +41,22 @@ RANDOM_GRAPH_SEEDS = (
 )
 
 COMMUNITY_MEASURES = {
-    # "edge_ratio": {
-    #     "name": "Edge Ratio",
-    #     "partition_func": lambda G: louvain_communities(
-    #         G,
-    #         global_edge_ratio,
-    #         local_edge_ratio,
-    #     ),
-    # },
-    # "modularity": {
-    #     "name": "Modularity",
-    #     # "partition_func": lambda G: louvain_communities(G),
-    #     "partition_func": lambda G: louvain_communities(
-    #         G,
-    #         global_modularity,
-    #         local_modularity,
-    #     ),
-    # },
+    "edge_ratio": {
+        "name": "Edge Ratio",
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_edge_ratio,
+            local_edge_ratio,
+        ),
+    },
+    "modularity": {
+        "name": "Modularity",
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_modularity,
+            local_modularity,
+        ),
+    },
     "modularity_density": {
         "name": "Modularity Density",
         "partition_func": lambda G: louvain_communities(
@@ -88,7 +96,7 @@ def run_benchmarks(
         print(f"Running benchmark for measure {measure}...")
         nmi_scores = []
         for seed in graph_seeds:
-            G = generate_sbm_graph(graph_size, seed=seed)
+            G = generate_lfr_graph(graph_size, seed=seed)
             partition = COMMUNITY_MEASURES[measure]["partition_func"](G)
             ground_truth_partition = G.graph["partition"]
             print(
