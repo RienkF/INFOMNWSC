@@ -1,15 +1,16 @@
 import networkx
 
-from itertools import chain
+from utils.types import Partition
 
 
-# TODO: Type partition
-from networkx.algorithms.community import modularity
-
-
-def global_modularity(G: networkx.DiGraph, partitions):
-    m = G.size()
-
+def global_modularity(G: networkx.DiGraph, partitions: Partition, m: int):
+    """
+    Calculates the modularity of the graph
+    :param G: Total graph
+    :param partitions: Partitions on te graph
+    :param m: size of the graph.
+    :return: Edge ratio score
+    """
     score_sum = 0
     for partition in partitions:
         for u in partition:
@@ -23,17 +24,14 @@ def global_modularity(G: networkx.DiGraph, partitions):
                     n_out_degree = sum(map(lambda x: x[2], G.out_edges(n, "weight")))
                     score_sum += wt - ((u_in_degree * n_out_degree) / m)
     return score_sum / m
-    # return modularity(G, partitions)
 
 
 def local_modularity(
     G: networkx.DiGraph,
-    u,
-    neighbour,
-    node_to_community,
-    inner_partition,
-    partition,
-    original_graph: networkx.DiGraph,
+    u: int,
+    neighbour: int,
+    node_to_community: dict,
+    inner_partition: Partition,
     m: int,
 ):
     """
@@ -43,8 +41,6 @@ def local_modularity(
     :param neighbour: Neighbour partition to which the node will be moved.
     :param node_to_community: Dictionary that maps nodes to communities.
     :param inner_partition: Partition in the current stage of louvain.
-    :param partition: Total partition of the complete graph.
-    :param original_graph: The original graph used at the start of the algorithm.
     :param m: Total amount of edges.
     :return: Change in local score
     """

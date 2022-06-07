@@ -7,11 +7,18 @@ from itertools import chain
 from networkx.algorithms.community import modularity
 
 from algorithm.modularity import global_modularity, local_modularity
+from utils.types import Partition
 
 
-def global_modularity_density(G: networkx.DiGraph, partitions):
-    m = G.size()
-    modularity_score = global_modularity(G, partitions)
+def global_modularity_density(G: networkx.DiGraph, partitions: Partition, m: int):
+    """
+    Calculates the modularity density score.
+    :param G: Total graph
+    :param partitions: Partitions on te graph
+    :param m: size of the graph.
+    :return: Edge ratio score
+    """
+    modularity_score = global_modularity(G, partitions, m)
 
     split_penalty = 0
 
@@ -30,12 +37,10 @@ def global_modularity_density(G: networkx.DiGraph, partitions):
 
 def local_modularity_density(
     G: networkx.DiGraph,
-    u,
-    neighbour,
-    node_to_community,
-    inner_partition,
-    partition,
-    original_graph: networkx.DiGraph,
+    u: int,
+    neighbour: int,
+    node_to_community: dict,
+    inner_partition: Partition,
     m: int,
 ):
     """
@@ -45,28 +50,22 @@ def local_modularity_density(
     :param neighbour: Neighbour partition to which the node will be moved.
     :param node_to_community: Dictionary that maps nodes to communities.
     :param inner_partition: Partition in the current stage of louvain.
-    :param partition: Total partition of the complete graph.
-    :param original_graph: The original graph used at the start of the algorithm.
     :param m: Total amount of edges.
     :return: Change in local score
     """
-
-    m = G.size()
-
     local_modularity_gain = local_modularity(
         G,
         u,
         neighbour,
         node_to_community,
         inner_partition,
-        partition,
-        original_graph,
         m,
     )
 
     u_partition = inner_partition[node_to_community[u]]
     neighbour_partition = inner_partition[node_to_community[neighbour]]
 
+    # Calculate the old split penalty
     split_penalty_decrease = 0
     for _, n, wt in G.out_edges(u, "weight"):
         if n in neighbour_partition:
@@ -75,6 +74,7 @@ def local_modularity_density(
         if n in neighbour_partition:
             split_penalty_decrease += wt
 
+    # Calculate the new split penalty
     split_penalty_increase = 0
     for _, n, wt in G.out_edges(u, "weight"):
         if n in u_partition and n != u:
@@ -83,6 +83,7 @@ def local_modularity_density(
         if n in u_partition and n != u:
             split_penalty_increase += wt
 
+    # Return modularity gain with the split penalty gain
     return local_modularity_gain + (
         (split_penalty_decrease - split_penalty_increase) / m
     )

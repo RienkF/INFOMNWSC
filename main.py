@@ -2,10 +2,7 @@ import networkx as nx
 import csv
 from pathlib import Path
 
-from algorithm.edge_ratio import global_edge_ratio, local_edge_ratio
-from algorithm.modularity import global_modularity, local_modularity
 from assess import run_benchmarks
-from louvain import louvain_communities
 
 EDGE_CSV_PATH = Path("data", "citations.csv")
 METADATA_CSV_PATH = Path("data", "case_metadata.csv")
