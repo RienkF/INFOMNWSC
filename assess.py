@@ -25,7 +25,7 @@ from graph_generation_lfr import generate_lfr_graph
 from algorithm.louvain import louvain_communities
 from utils.types import Partition, Labels
 
-GRAPH_SIZE = 5000
+GRAPH_SIZE = 5_000
 
 RANDOM_GRAPH_SEEDS = (
     2022_0,
@@ -57,14 +57,14 @@ COMMUNITY_MEASURES = {
             local_modularity,
         ),
     },
-    "modularity_density": {
-        "name": "Modularity Density",
-        "partition_func": lambda G: louvain_communities(
-            G,
-            global_modularity_density,
-            local_modularity_density,
-        ),
-    },
+    # "modularity_density": {
+    #     "name": "Modularity Density",
+    #     "partition_func": lambda G: louvain_communities(
+    #         G,
+    #         global_modularity_density,
+    #         local_modularity_density,
+    #     ),
+    # },
 }
 
 

@@ -11,14 +11,11 @@
 
 import networkx as nx
 
-ORIGINAL_GRAPH_SIZE = 750_000
-
 DEG_ALPHA = 3.565129
 COMM_SIZE_ALPHA = 4.1918
 AVG_DEG = 6.783669
-MAX_DEG = 6756
-MIN_COMM_SIZE = 21716
-MAX_COMM_SIZE = 116565
+MIN_COMM_FRAC = 0.065
+MAX_COMM_FRAC = 0.16
 INTER_COMMUNITY_FRAC = 0.282
 
 
@@ -27,14 +24,14 @@ def generate_lfr_graph(
     deg_exponent: float = DEG_ALPHA,
     comm_exponent: float = COMM_SIZE_ALPHA,
     avg_deg: float = AVG_DEG,
-    min_comm_size: float = MIN_COMM_SIZE,
-    max_comm_size: float = MAX_COMM_SIZE,
+    min_comm_frac: float = MIN_COMM_FRAC,
+    max_comm_frac: float = MAX_COMM_FRAC,
     inter_community_frac: float = INTER_COMMUNITY_FRAC,
     seed=None,
 ) -> nx.DiGraph:
     # First, scale absolute quantities by n / ORIGINAL_GRAPH_SIZE
-    min_comm_size = round(min_comm_size * n / ORIGINAL_GRAPH_SIZE)
-    max_comm_size = round(max_comm_size * n / ORIGINAL_GRAPH_SIZE)
+    min_comm_size = round(min_comm_frac * n)
+    max_comm_size = round(max_comm_frac * n)
     G = nx.generators.LFR_benchmark_graph(
         n,
         tau1=deg_exponent,
