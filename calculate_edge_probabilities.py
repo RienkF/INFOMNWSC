@@ -1,4 +1,5 @@
 # Get edge probabilities between different communities of the graph to feed into the stochastic block model
+import pickle
 from collections import defaultdict
 
 import networkx as nx
@@ -57,6 +58,12 @@ def create_community_size_csv(nodes_by_community: dict[set]):
 
 
 def estimate_power_law_degree_exponent(G):
+    community_size_fit, degree_distrib_fit = power_law_fits(G)
+    cache_powerlaw_fits(community_size_fit, degree_distrib_fit)
+    return degree_distrib_fit.power_law.alpha, community_size_fit.power_law.alpha
+
+
+def power_law_fits(G):
     degrees = [d for n, d in G.degree()]
     degree_distrib_fit = powerlaw.Fit(degrees)
     # Now do a powerlaw fit for the community sizes
@@ -67,7 +74,16 @@ def estimate_power_law_degree_exponent(G):
             nodes_by_community[court].add(node)
     community_sizes = [len(nodes) for nodes in nodes_by_community.values()]
     community_size_fit = powerlaw.Fit(community_sizes)
-    return degree_distrib_fit.power_law.alpha, community_size_fit.power_law.alpha
+    return community_size_fit, degree_distrib_fit
+
+
+def cache_powerlaw_fits(community_size_fit, degree_distrib_fit):
+    pickle_cache = {
+        "degree_distrib_fit": degree_distrib_fit,
+        "community_size_fit": community_size_fit,
+    }
+    with open(Path("data", "powerlaw_fits.pik"), "wb") as f:
+        pickle.dump(pickle_cache, f)
 
 
 def inter_community_edge_fraction(G):

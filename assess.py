@@ -18,6 +18,7 @@ from algorithm.modularity_density import (
     local_modularity_density,
     global_modularity_density,
 )
+from graph_generation_fs import generate_fs_graph
 from graph_generation_sbm import generate_sbm_graph
 from graph_generation_lfr import generate_lfr_graph
 
@@ -57,14 +58,14 @@ COMMUNITY_MEASURES = {
             local_modularity,
         ),
     },
-    # "modularity_density": {
-    #     "name": "Modularity Density",
-    #     "partition_func": lambda G: louvain_communities(
-    #         G,
-    #         global_modularity_density,
-    #         local_modularity_density,
-    #     ),
-    # },
+    "modularity_density": {
+        "name": "Modularity Density",
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_modularity_density,
+            local_modularity_density,
+        ),
+    },
 }
 
 
@@ -96,7 +97,7 @@ def run_benchmarks(
         print(f"Running benchmark for measure {measure}...")
         nmi_scores = []
         for seed in graph_seeds:
-            G = generate_lfr_graph(graph_size, seed=seed)
+            G = generate_fs_graph(graph_size, seed=seed)
             partition = COMMUNITY_MEASURES[measure]["partition_func"](G)
             ground_truth_partition = G.graph["partition"]
             print(

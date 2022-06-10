@@ -7,6 +7,8 @@ from pathlib import Path
 
 from algorithm.edge_ratio import global_edge_ratio
 
+AVG_DEGREE = 6.78366
+
 
 def get_edge_probabilities(edge_prob_csv: Path) -> list[list[float]]:
     # Outer key: citing community, inner key: cited community, value: probability of edges
@@ -51,9 +53,9 @@ def generate_sbm_graph(
         edge_prob_mat = EDGE_PROBS
     if community_sizes is None:
         community_sizes = COMMUNITY_SIZES
-    # Scale edge probabilities by 100,000 / n
-    edge_prob_mat = [[p * 50000 / n for p in row] for row in edge_prob_mat]
     community_sizes = [int(round(n * s)) for s in community_sizes]
+    # Preserve the average degree of the original graph
+    edge_prob_mat = get_scaled_edge_probs(AVG_DEGREE, edge_prob_mat, community_sizes)
     G = nx.stochastic_block_model(
         community_sizes, edge_prob_mat, seed=seed, directed=True
     )
@@ -61,6 +63,21 @@ def generate_sbm_graph(
     for u, v in G.edges:
         G[u][v]["weight"] = 1
     return G
+
+
+def get_scaled_edge_probs(
+    desired_avg_degree: float,
+    edge_prob_mat: list[list[float]],
+    community_sizes: list[int],
+) -> list[list[float]]:
+    desired_num_edges = sum(community_sizes) * desired_avg_degree
+    num_edges_before_scaling = 0
+    for i in range(len(edge_prob_mat)):
+        for j in range(len(edge_prob_mat[i])):
+            curr_possible_edges = community_sizes[i] * community_sizes[j]
+            num_edges_before_scaling += curr_possible_edges * edge_prob_mat[i][j]
+    scaling_factor = desired_num_edges / num_edges_before_scaling
+    return [[p * scaling_factor for p in row] for row in edge_prob_mat]
 
 
 def main():
