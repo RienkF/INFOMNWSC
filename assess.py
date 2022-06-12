@@ -86,7 +86,8 @@ def run_benchmarks(
     graph_seeds=RANDOM_GRAPH_SEEDS,
     measures=tuple(COMMUNITY_MEASURES.keys()),
     graph_size=GRAPH_SIZE,
-    output_file=Path("data", "benchmark_results.csv"),
+    summary_output_file=Path("data", "benchmark_results.csv"),
+    full_output_file=Path("data", "benchmark_results_full.csv"),
 ):
     """
     Testing procedure: for each SBM graph (created from seed), run the louvain algorithm with each measure.
@@ -112,20 +113,27 @@ def run_benchmarks(
                 f" {nmi_score(ground_truth_partition, partition)}"
             )
         nmi_results[measure] = {
+            "full_results": nmi_scores,
             "mean_nmi": sum(nmi_scores) / len(nmi_scores),
         }
         nmi_results[measure]["variance_nmi"] = sum(
             [(x - nmi_results[measure]["mean_nmi"]) ** 2 for x in nmi_scores]
         ) / len(nmi_scores)
-    save_benchmark_results(nmi_results, output_file)
+    save_benchmark_results(nmi_results, summary_output_file, full_output_file)
 
 
-def save_benchmark_results(nmi_results, output_file):
-    with open(output_file, "w") as f:
+def save_benchmark_results(nmi_results, summary_output_file, full_output_file):
+    with open(summary_output_file, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["Measure", "Mean NMI", "Variance NMI"])
         for measure, results in nmi_results.items():
             writer.writerow([measure, results["mean_nmi"], results["variance_nmi"]])
+    with open(full_output_file, "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Measure", "Seed", "NMI"])
+        for measure, results in nmi_results.items():
+            for seed, nmi in zip(RANDOM_GRAPH_SEEDS, results["full_results"]):
+                writer.writerow([measure, seed, nmi])
 
 
 def main():

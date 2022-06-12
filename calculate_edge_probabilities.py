@@ -7,7 +7,7 @@ import csv
 from pathlib import Path
 import powerlaw
 
-from main import load_network
+from load_network import load_network
 
 
 def main():

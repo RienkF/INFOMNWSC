@@ -2,7 +2,7 @@ from collections import Counter
 
 import matplotlib.pyplot as plt
 
-from main import load_network
+from load_network import load_network
 
 G = load_network()
 degrees = [deg for _, deg in G.degree()]
