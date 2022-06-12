@@ -17,4 +17,8 @@ The core functionality, should you wish to inspect it, is spread across several 
 
 Other files contain functionality of various utility, but are not necessary to reproduce the results of the paper.
 
+## Peer Review Notes
+- The review-ready paper can be found in this directory as `paper-peer-review-draft.pdf`.
+- The final version of our paper will have a 4th community measure included as well. Because of time constraints, we have excluded this measure from the current draft. Some TODO notes are left where we plan to expound on this measure in the final paper.
+
 Godspeed!
