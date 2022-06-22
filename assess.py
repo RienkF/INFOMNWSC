@@ -4,8 +4,6 @@ from pathlib import Path
 
 from sklearn.metrics import normalized_mutual_info_score
 
-import networkx as nx
-
 from algorithm.edge_ratio import (
     local_edge_ratio,
     global_edge_ratio,
@@ -46,14 +44,14 @@ RANDOM_GRAPH_SEEDS = (
 )
 
 COMMUNITY_MEASURES = {
-    # "edge_ratio": {
-    #     "name": "Edge Ratio",
-    #     "partition_func": lambda G: louvain_communities(
-    #         G,
-    #         global_edge_ratio,
-    #         local_edge_ratio,
-    #     ),
-    # },
+    "edge_ratio": {
+        "name": "Edge Ratio",
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_edge_ratio,
+            local_edge_ratio,
+        ),
+    },
     "intensity_ratio": {
         "name": "Intensity Ratio",
         "partition_func": lambda G: louvain_communities(
@@ -62,22 +60,22 @@ COMMUNITY_MEASURES = {
             local_intensity_ratio,
         ),
     },
-    # "modularity": {
-    #     "name": "Modularity",
-    #     "partition_func": lambda G: louvain_communities(
-    #         G,
-    #         global_modularity,
-    #         local_modularity,
-    #     ),
-    # },
-    # "modularity_density": {
-    #     "name": "Modularity Density",
-    #     "partition_func": lambda G: louvain_communities(
-    #         G,
-    #         global_modularity_density,
-    #         local_modularity_density,
-    #     ),
-    # },
+    "modularity": {
+        "name": "Modularity",
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_modularity,
+            local_modularity,
+        ),
+    },
+    "modularity_density": {
+        "name": "Modularity Density",
+        "partition_func": lambda G: louvain_communities(
+            G,
+            global_modularity_density,
+            local_modularity_density,
+        ),
+    },
 }
 
 NAME_TO_GLOBAL_FUNC = {
@@ -121,11 +119,15 @@ def run_benchmarks(
             partition = COMMUNITY_MEASURES[measure]["partition_func"](G)
             ground_truth_partition = G.graph["partition"]
             print(
-                f"{measure} for ground truth: {NAME_TO_GLOBAL_FUNC[measure](G, ground_truth_partition, G.size())}"
+                f"{measure} for ground truth:"
+                f" {NAME_TO_GLOBAL_FUNC[measure](G, ground_truth_partition, G.size())}"
             )
             print(
-                f"{measure} for algorithm: {NAME_TO_GLOBAL_FUNC[measure](G, partition, G.size())}"
+                f"{measure} for algorithm:"
+                f" {NAME_TO_GLOBAL_FUNC[measure](G, partition, G.size())}"
             )
+            print(f"Ground truth partition size: {len(ground_truth_partition)}")
+            print(f"Algorithm partition size: {len(partition)}")
             nmi_scores.append(nmi_score(ground_truth_partition, partition))
             print(
                 f"Measure {measure}, Seed {seed}: NMI"
