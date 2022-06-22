@@ -1,11 +1,5 @@
 import networkx
 
-from itertools import chain
-
-
-# TODO: Type partition
-from networkx.algorithms.community import modularity
-
 from algorithm.modularity import global_modularity, local_modularity
 from utils.types import Partition
 

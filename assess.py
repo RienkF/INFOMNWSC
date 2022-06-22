@@ -21,10 +21,7 @@ from algorithm.modularity_density import (
     global_modularity_density,
 )
 from graph_generation_fs import generate_fs_graph
-from graph_generation_sbm import generate_sbm_graph
-from graph_generation_lfr import generate_lfr_graph
 
-# from louvain import louvain_communities
 from algorithm.louvain import louvain_communities
 from utils.types import Partition, Labels
 

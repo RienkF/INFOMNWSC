@@ -2,16 +2,14 @@ import networkx
 
 from utils.types import Partition
 
-from algorithm.edge_ratio import edge_boundary_ratio
-
 
 def global_intensity_ratio(G: networkx.DiGraph, partitions: Partition, _: int):
     """
-    Calculate the global edge ration score.
+    Calculate the global intensity ratio score.
     :param G: Total graph
     :param partitions: Partitions on te graph
     :param _: size of the graph.
-    :return: Edge ratio score
+    :return: Intensity ratio score
     """
     # Sum all partition scores.
     return sum(
@@ -65,10 +63,10 @@ def local_intensity_ratio(
 
 def edge_boundary_intensity_ratio(G: networkx.DiGraph, partition):
     """
-    Calculates the the edge boundary ratio efficiently by checking each edge
+    Calculates the the edge boundary intensity ratio efficiently by checking each edge
     :param G: The graph
     :param partition: The current partition
-    :return: Edge boundary ratio for the current partition
+    :return: Edge boundary intensity ratio for the current partition
     """
     edge_boundary_size = 0
     in_edge_size = 0
@@ -85,8 +83,8 @@ def edge_boundary_intensity_ratio(G: networkx.DiGraph, partition):
             else:
                 in_edge_size += edge[2]
     in_edge_size = in_edge_size / 2
-    p_in_denom = (len(partition) * (len(partition) - 1))
-    p_out_denom = (2 * len(partition) * (G.number_of_nodes() - len(partition)))
+    p_in_denom = len(partition) * (len(partition) - 1)
+    p_out_denom = 2 * len(partition) * (G.number_of_nodes() - len(partition))
     if p_in_denom == 0 or p_out_denom == 0:
         return 0
     p_in = in_edge_size / p_in_denom

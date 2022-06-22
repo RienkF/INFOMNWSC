@@ -5,7 +5,7 @@ from utils.types import Partition
 
 def global_edge_ratio(G: networkx.DiGraph, partitions: Partition, _: int):
     """
-    Calculate the global edge ration score.
+    Calculate the global edge ratio score.
     :param G: Total graph
     :param partitions: Partitions on te graph
     :param _: size of the graph.
