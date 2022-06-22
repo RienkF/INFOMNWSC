@@ -3,3 +3,4 @@ scikit-learn~=1.1
 click~=8.1
 powerlaw
 scipy
+infomap

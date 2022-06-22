@@ -10,6 +10,10 @@ from algorithm.edge_ratio import (
     local_edge_ratio,
     global_edge_ratio,
 )
+from algorithm.intensity_ratio import (
+    local_intensity_ratio,
+    global_intensity_ratio,
+)
 from algorithm.modularity import (
     local_modularity,
     global_modularity,
@@ -42,30 +46,45 @@ RANDOM_GRAPH_SEEDS = (
 )
 
 COMMUNITY_MEASURES = {
-    "edge_ratio": {
-        "name": "Edge Ratio",
+    # "edge_ratio": {
+    #     "name": "Edge Ratio",
+    #     "partition_func": lambda G: louvain_communities(
+    #         G,
+    #         global_edge_ratio,
+    #         local_edge_ratio,
+    #     ),
+    # },
+    "intensity_ratio": {
+        "name": "Intensity Ratio",
         "partition_func": lambda G: louvain_communities(
             G,
-            global_edge_ratio,
-            local_edge_ratio,
+            global_intensity_ratio,
+            local_intensity_ratio,
         ),
     },
-    "modularity": {
-        "name": "Modularity",
-        "partition_func": lambda G: louvain_communities(
-            G,
-            global_modularity,
-            local_modularity,
-        ),
-    },
-    "modularity_density": {
-        "name": "Modularity Density",
-        "partition_func": lambda G: louvain_communities(
-            G,
-            global_modularity_density,
-            local_modularity_density,
-        ),
-    },
+    # "modularity": {
+    #     "name": "Modularity",
+    #     "partition_func": lambda G: louvain_communities(
+    #         G,
+    #         global_modularity,
+    #         local_modularity,
+    #     ),
+    # },
+    # "modularity_density": {
+    #     "name": "Modularity Density",
+    #     "partition_func": lambda G: louvain_communities(
+    #         G,
+    #         global_modularity_density,
+    #         local_modularity_density,
+    #     ),
+    # },
+}
+
+NAME_TO_GLOBAL_FUNC = {
+    "edge_ratio": global_edge_ratio,
+    "intensity_ratio": global_intensity_ratio,
+    "modularity": global_modularity,
+    "modularity_density": global_modularity_density,
 }
 
 
@@ -102,10 +121,10 @@ def run_benchmarks(
             partition = COMMUNITY_MEASURES[measure]["partition_func"](G)
             ground_truth_partition = G.graph["partition"]
             print(
-                f"Modularity for ground truth: {nx.algorithms.community.modularity(G, ground_truth_partition)}"
+                f"{measure} for ground truth: {NAME_TO_GLOBAL_FUNC[measure](G, ground_truth_partition, G.size())}"
             )
             print(
-                f"Modularity for algorithm: {nx.algorithms.community.modularity(G, partition)}"
+                f"{measure} for algorithm: {NAME_TO_GLOBAL_FUNC[measure](G, partition, G.size())}"
             )
             nmi_scores.append(nmi_score(ground_truth_partition, partition))
             print(
