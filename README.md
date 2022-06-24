@@ -13,12 +13,8 @@ The core functionality, should you wish to inspect it, is spread across several 
 - The code that implements our LFR benchmark-inspired synthetic graphs is in `graph_generation_fs.py`.
 - The code that runs the optimization algorithm on each combination of synthetic graph and measure is in `assess.py`.
 - Our implementation of the Louvain algorithm is in `algorithm/louvain.py`.
-- Our implementations of the community measures are found in `algorithm/edge_ratio.py`, `algorithm/modularity.py`, and `algorithm/modularity_density.py`.
+- Our implementations of the community measures are found in `algorithm/edge_ratio.py`, `algorithm/intensity_ratio.py`, `algorithm/modularity.py`, and `algorithm/modularity_density.py`.
 
 Other files contain functionality of various utility, but are not necessary to reproduce the results of the paper.
-
-## Peer Review Notes
-- The review-ready paper can be found in this directory as `paper-peer-review-draft.pdf`.
-- The final version of our paper will have a 4th community measure included as well. Because of time constraints, we have excluded this measure from the current draft. Some TODO notes are left where we plan to expound on this measure in the final paper.
 
 Godspeed!

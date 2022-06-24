@@ -1,4 +1,8 @@
-# Normalized mutual information score for community detection
+"""
+The script that tests the performance of the different community measures on the synthetic graphs
+and records the results in CSV files.
+"""
+
 import csv
 from pathlib import Path
 
@@ -40,6 +44,8 @@ RANDOM_GRAPH_SEEDS = (
     2022_9,
 )
 
+# For each community measure, we provide a name and a function that
+# runs our Louvain algorithm with the given measure.
 COMMUNITY_MEASURES = {
     "edge_ratio": {
         "name": "Edge Ratio",
@@ -84,16 +90,22 @@ NAME_TO_GLOBAL_FUNC = {
 
 
 def nmi_format_partition(partition: Partition) -> Labels:
+    """
+    Convert a partition to a format that can be used by NMI.
+    :param partition: A list of sets of nodes where each set represents a community/label.
+    :return: A single list of labels where labels[i] is the label of the i-th node.
+    """
     node_comm_dict = {
         node: comm for comm, nodes in enumerate(partition) for node in nodes
     }
+    # Sort the list so that the labels correspond to the nodes in the same order.
     return [node_comm_dict[node] for node in sorted(list(node_comm_dict.keys()))]
 
 
 def nmi_score(labels_true: Partition, labels_pred: Partition) -> float:
-    partition = nmi_format_partition(labels_true)
-    format_partition = nmi_format_partition(labels_pred)
-    return normalized_mutual_info_score(partition, format_partition)
+    return normalized_mutual_info_score(
+        nmi_format_partition(labels_true), nmi_format_partition(labels_pred)
+    )
 
 
 def run_benchmarks(
@@ -104,7 +116,7 @@ def run_benchmarks(
     full_output_file=Path("data", "benchmark_results_full.csv"),
 ):
     """
-    Testing procedure: for each SBM graph (created from seed), run the louvain algorithm with each measure.
+    Testing procedure: for each synthetic graph (created from seed), run the louvain algorithm with each measure.
     Then, compare the resulting partitions with the ground truth partition using NMI.
     """
     nmi_results: dict[str, dict] = {}
@@ -113,8 +125,10 @@ def run_benchmarks(
         nmi_scores = []
         for seed in graph_seeds:
             G = generate_fs_graph(graph_size, seed=seed)
+            # Run the louvain algorithm with the given measure. and get the resulting partition.
             partition = COMMUNITY_MEASURES[measure]["partition_func"](G)
             ground_truth_partition = G.graph["partition"]
+            # Log the measure scores for both the partition and the ground truth partition.
             print(
                 f"{measure} for ground truth:"
                 f" {NAME_TO_GLOBAL_FUNC[measure](G, ground_truth_partition, G.size())}"
@@ -125,6 +139,7 @@ def run_benchmarks(
             )
             print(f"Ground truth partition size: {len(ground_truth_partition)}")
             print(f"Algorithm partition size: {len(partition)}")
+            # Compute the NMI score between the partition and the ground truth partition.
             nmi_scores.append(nmi_score(ground_truth_partition, partition))
             print(
                 f"Measure {measure}, Seed {seed}: NMI"
@@ -141,6 +156,13 @@ def run_benchmarks(
 
 
 def save_benchmark_results(nmi_results, summary_output_file, full_output_file):
+    """
+    Save the benchmark results to two CSV files. One file contains a statistical
+    summary of the results, and the other contains the results on a granular level.
+    :param nmi_results: A dictionary of the form {measure: {full_results: list[float], mean_nmi: float, variance_nmi: float}}
+    :param summary_output_file: The path to the summary CSV file.
+    :param full_output_file: The path to the full results CSV file.
+    """
     with open(summary_output_file, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["Measure", "Mean NMI", "Variance NMI"])

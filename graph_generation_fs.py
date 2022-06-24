@@ -1,3 +1,9 @@
+"""
+Our modified version of the LFR benchmark model, suited to fit the particular properties
+of the judicial citation network. The specific procedure and parameters utilized is set out
+in Section 2 and 3 of our paper.
+"""
+
 from random import choice, seed as randseed
 
 import networkx as nx
